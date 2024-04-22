@@ -9,16 +9,34 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.2"
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.12.3",
+    "@tiptap/pm": "^2.3.0",
+    "@tiptap/react": "^2.3.0",
+    "@tiptap/starter-kit": "^2.3.0",
+    "classnames": "^2.5.1",
+    "firebase": "^10.11.0",
+    "next": "14.2.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-quill": "^2.0.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.15",
+    "@mui/material": "^5.15.15",
+    "@types/draft-js": "^0.11.18",
+    "@types/draftjs-to-html": "^0.8.4",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-draft-wysiwyg": "^1.13.8",
     "eslint": "^8",
-    "eslint-config-next": "14.2.2"
+    "eslint-config-next": "14.2.2",
+    "typescript": "^5.1.3"
   }
 }

@@ -1,0 +1,1 @@
+// │   ├── firebaseAdmin.ts                  # Firebase Admin SDK initialization and helper functions
