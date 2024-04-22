@@ -29,6 +29,16 @@ export interface UseAuthResult {
 export interface FirebaseAuthProviderProps {
   children: ReactNode; // The React components contained within the provider
 }
+// Types for Uploaded Images and Article Variables
+export interface UploadedImage {
+  id?: string;
+  variableName: string; // The variable name for reference in React Quill
+  downloadURL: string; // The Firebase Storage download URL
+}
+
+// Function signatures for expected parameters
+export type ImageUploadHandler = (images: UploadedImage[]) => void;
+export type InsertImageVariableHandler = (variableName: string) => void;
 
 // Article data structure for Firestore
 export interface Article {
@@ -36,11 +46,27 @@ export interface Article {
   title: string;
   content: string;
   authorId: string; // Firebase user ID
+  authorName: string;
+  authorImage?: string;
+  likes: string[];
+  comments: string[];
+  firstImage?: string;
   createdAt: Timestamp;
   updatedAt?: Timestamp;
   images?: string[];
+  fetchedArticles?: Article[];
 }
 
+export interface UploadedImages {
+  isUploading: boolean;
+  uploadedImages: UploadedImage[];
+  error: string | null;
+  articleId: string | null;
+  uploadArticle: (article: Omit<Article, 'id' | 'createdAt'>) => void;
+  uploadImage: (file: File) => Promise<UploadedImage>;
+  variableName: string; // Variable name used in the article
+  downloadURL: string; // URL of the uploaded image
+}
 // User Profile data structure
 export interface UserProfile {
   id: string; // User ID

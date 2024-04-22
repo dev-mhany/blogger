@@ -24,7 +24,7 @@ const SignUpPage = () => {
         </Typography>
         <SignUpForm />
         <Typography variant="body2" sx={{ mt: 2 }}>
-          Already have an account?{' '}
+          Already have an account?
           <Link component={NextLink} href="/auth/sign-in">
             Sign in here
           </Link>
