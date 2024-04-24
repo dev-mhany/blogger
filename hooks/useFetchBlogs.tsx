@@ -18,21 +18,21 @@ const useFetchBlogs = () => {
   const [blogs, setBlogs] = useState<Article[]>([]);
 
   useEffect(() => {
-    console.log('Fetching blogs...');
+    console.log('useFetchBlogs: Fetching blogs...');
 
-    // Attempt to load cached blogs first
+    // Attempt to load cached blogs from local storage first
     const cachedBlogs = localStorage.getItem('blogs');
     if (cachedBlogs) {
-      console.log('Loaded cached blogs');
+      console.log('useFetchBlogs: Loaded cached blogs from local storage');
       setBlogs(JSON.parse(cachedBlogs));
     }
 
-    // Set up the query
+    // Set up the query for Firebase
     const q = query(collection(db, 'articles'), orderBy('createdAt', 'desc'));
 
-    // Fetch all initial blogs and set up a listener for new changes
+    // Fetch all initial blogs and set up a listener for new changes from Firebase
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      console.log('Received blog update');
+      console.log('useFetchBlogs: Received blog update from Firebase');
       const fetchedBlogs: Article[] = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -49,19 +49,19 @@ const useFetchBlogs = () => {
       });
 
       setBlogs(fetchedBlogs);
-      console.log('Updated blogs in state');
+      console.log('useFetchBlogs: Updated blogs in state');
       saveToLocalStorage('blogs', fetchedBlogs); // Update local storage with the latest data
-      console.log('Updated local storage');
+      console.log('useFetchBlogs: Updated blogs in local storage');
     });
 
     // Clean up the listener when the component unmounts
     return () => {
-      console.log('Cleaning up listener');
+      console.log('useFetchBlogs: Cleaning up Firebase listener');
       unsubscribe();
     };
   }, []);
 
-  console.log('Returning blogs from hook', blogs);
+  console.log('useFetchBlogs: Returning blogs from hook', blogs);
   return {
     blogs,
   };
