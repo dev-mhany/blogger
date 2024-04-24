@@ -6,6 +6,7 @@ import ThemeConfigProvider from '../../app/theme';
 import { useState } from 'react';
 import Sidebar from './Sidebar';
 import useAuth from '../../hooks/useAuth';
+import { NavbarProps, SidebarProps } from '@/types/types'; // Ensure correct types
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -15,16 +16,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
-  const { user, signOut } = useAuth(); // `user` may be `null`
+  const { user, signOut } = useAuth();
 
   return (
     <ThemeConfigProvider>
       <Navbar
-        user={user}
-        toggleTheme={toggleTheme}
-        isDarkMode={isDarkMode}
-        toggleSidebar={toggleSidebar}
-        onSignOut={signOut}
+        user={user} // Ensure user is passed correctly
+        toggleTheme={toggleTheme} // Correct prop for theme toggle
+        isDarkMode={isDarkMode} // Correct boolean prop
+        toggleSidebar={toggleSidebar} // Ensure correct function prop
+        onSignOut={signOut} // Ensure sign-out function
       />
       <Sidebar open={isSidebarOpen} onClose={toggleSidebar} />
       <main style={{ minHeight: '80vh' }}>{children}</main>

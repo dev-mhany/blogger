@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Box } from '@mui/material';
 import { usePathname } from 'next/navigation';
-import useFetchLatestBlogs from '../../../hooks/useFetchLatestBlogs';
+import useFetchAllBlogs from '../../../hooks/useFetchAllBlogs';
 import ArticleHeader from '../../../components/Article/ArticleHeader';
 import ArticleContent from '../../../components/Article/ArticleContent';
 import ArticleActions from '../../../components/Article/ArticleActions';
@@ -24,7 +24,7 @@ interface Blog {
 }
 
 const ArticleDetailPage = () => {
-  const { blogs, loading, error } = useFetchLatestBlogs();
+  const { blogs, loading, error } = useFetchAllBlogs();
   const pathname = usePathname();
 
   const articleId = pathname.split('/').pop();
@@ -59,7 +59,6 @@ const ArticleDetailPage = () => {
 
   return (
     <Box sx={{ padding: 4, maxWidth: 800, margin: '0 auto' }}>
-      {/* Article Header */}
       <ArticleHeader
         title={article.title}
         authorName={article.authorName ?? 'Unknown'} // Fallback for authorName
@@ -67,38 +66,25 @@ const ArticleDetailPage = () => {
         createdAt={article.createdAt} // Keep as Date
       />
 
-      {/* Display first image */}
-      {article.firstImage && (
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
-          <Image
-            src={article.firstImage}
-            alt={article.title}
-            style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-          />
-        </Box>
-      )}
-
-      {/* Article Content */}
       <ArticleContent content={article.content} />
 
-      {/* Additional Images */}
       {article.images && article.images.length > 0 && (
         <Box sx={{ display: 'flex', gap: 2, overflowX: 'scroll', my: 2 }}>
           {article.images.map((img) => (
             <Image
               key={img} // Use image URL as a unique key
               src={img}
-              layout="responsive"
-              width={16}
-              height={9}
+              unoptimized
+              sizes="100vw"
+              width={0}
+              height={0}
               alt={`Image for ${article.title}`}
-              style={{ width: 100, height: 100, borderRadius: '8px' }}
+              style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
             />
           ))}
         </Box>
       )}
 
-      {/* Article Actions */}
       <ArticleActions
         onLike={() => console.log('Liked')}
         onComment={() => console.log('Commented')}

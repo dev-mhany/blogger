@@ -17,7 +17,6 @@ const ArticleHeader = ({
 }: ArticleHeaderProps) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
-      {/* Display author image if provided */}
       {authorImage && (
         <Avatar
           src={authorImage} // Display author image

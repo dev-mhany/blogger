@@ -1,17 +1,57 @@
 import { useState } from 'react';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
-import { db } from '../../firebase/firebaseClient'; // Firebase Firestore instance
-import useAuth from '../../hooks/useAuth'; // Custom hook for Firebase Authentication
-import { Article } from '../../types/types'; // Import the `Article` interface
+import { db } from '../../firebase/firebaseClient';
+import { storage } from '../../firebase/firebaseClient';
+import {
+  uploadBytes,
+  getDownloadURL,
+  ref as storageRef,
+} from 'firebase/storage';
+import useAuth from '../../hooks/useAuth';
+import { Article, UploadedImage } from '../../types/types';
+import { v4 as uuidv4 } from 'uuid';
 
 const CreateArticle = () => {
-  const { user } = useAuth(); // Get the current authenticated user
-  const [isUploading, setIsUploading] = useState(false); // Track upload status
-  const [error, setError] = useState<string | null>(null); // Track errors
-  const [articleId, setArticleId] = useState<string | null>(null); // Store uploaded article ID
+  const { user } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [articleId, setArticleId] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+
+  // Define the uploadImages function
+  const uploadImages = async (files: File[]): Promise<UploadedImage[]> => {
+    if (!user) {
+      setError('User must be authenticated to upload images.');
+      return [];
+    }
+
+    const uploadedImagesData: UploadedImage[] = [];
+    setIsUploading(true);
+
+    for (const file of files) {
+      try {
+        const fileRef = storageRef(storage, `images/${uuidv4()}`);
+        await uploadBytes(fileRef, file);
+        const downloadURL = await getDownloadURL(fileRef);
+
+        uploadedImagesData.push({
+          variableName: file.name,
+          downloadURL,
+        });
+      } catch (e) {
+        if (e instanceof Error) {
+          setError(`Failed to upload image: ${e.message}`);
+        }
+      }
+    }
+
+    setIsUploading(false);
+    return uploadedImagesData; // Return the uploaded images data
+  };
 
   const uploadArticle = async (
-    article: Omit<Article, 'id' | 'createdAt'> // ID and createdAt omitted
+    article: Omit<Article, 'id' | 'createdAt'>,
+    files: File[] // Ensure you're passing the correct arguments
   ) => {
     if (!user) {
       setError('User must be authenticated to upload articles.');
@@ -20,34 +60,35 @@ const CreateArticle = () => {
 
     try {
       setError(null);
-      setIsUploading(true); // Begin upload
+      setIsUploading(true);
 
-      // Data to upload
-      const articleData: Omit<Article, 'id' | 'createdAt'> = {
+      const uploadedImagesData = await uploadImages(files); // Use the correct function
+      setUploadedImages(uploadedImagesData);
+
+      const articleData = {
         title: article.title,
         content: article.content,
-        authorId: user.uid, // Assign current user ID as author
-        authorName: user.displayName ?? 'Anonymous', // Use display name or fallback
+        authorId: user.uid,
+        authorName: user.displayName ?? 'Anonymous',
         likes: [],
         comments: [],
-        images: article.images || [], // Ensure images is always an array
+        images: uploadedImagesData.map((img) => img.downloadURL), // Ensure images are included
       };
 
-      // Create the Firestore document
       const docRef = await addDoc(collection(db, 'articles'), {
         ...articleData,
-        createdAt: Timestamp.now(), // Current timestamp
+        createdAt: Timestamp.now(),
       });
 
       setArticleId(docRef.id); // Store the new document ID
     } catch (e) {
       if (e instanceof Error) {
-        setError(e.message); // Capture specific error message
+        setError(`Failed to upload article: ${e.message}`);
       } else {
-        setError('Failed to upload the article.'); // General error handling
+        setError('Failed to upload the article.');
       }
     } finally {
-      setIsUploading(false); // End upload process
+      setIsUploading(false);
     }
   };
 
@@ -55,7 +96,9 @@ const CreateArticle = () => {
     isUploading,
     error,
     articleId,
-    uploadArticle, // Function to upload article with all properties
+    uploadedImages,
+    uploadArticle,
+    uploadImages, // Add the uploadImages function to the return object
   };
 };
 

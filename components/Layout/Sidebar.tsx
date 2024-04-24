@@ -10,7 +10,6 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
   return (
     <Drawer anchor="left" open={open} onClose={onClose}>
       <List>
-        {/* Link to Home */}
         <ListItem onClick={onClose}>
           <Link href="/" passHref>
             <ListItemText primary="Home" />
@@ -19,7 +18,6 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
 
         <Divider />
 
-        {/* Link to Settings */}
         <ListItem onClick={onClose}>
           <Link href="/settings" passHref>
             <ListItemText primary="Settings" />

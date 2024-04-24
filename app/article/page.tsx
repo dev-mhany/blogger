@@ -1,48 +1,47 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Button,
-  Box,
   Typography,
+  Box,
   Card,
   CardContent,
   CardMedia,
+  Button,
 } from '@mui/material';
+import useFetchAllBlogs from '../../hooks/useFetchAllBlogs';
 import { useRouter } from 'next/navigation';
-import useFetchLatestBlogs from '../../hooks/useFetchLatestBlogs'; // Fetch latest blogs
-import ArticlePreview from '../../components/Article/ArticlePreview'; // Component for text previews
-import Image from 'next/image';
 
-const ArticlePage = () => {
-  const { blogs, loading, error } = useFetchLatestBlogs();
+const ArticleAllPage = () => {
+  const [initialFetch, setInitialFetch] = useState(true);
+  const { blogs, loading, error, fetchMore, hasMore } = useFetchAllBlogs();
   const router = useRouter();
 
-  const handleCreateBlog = () => {
-    router.push('/article/create'); // Navigate to "Create Blog"
-  };
+  const handleReadMore = useCallback(
+    (articleId: string) => {
+      router.push(`/article/${articleId}`);
+    },
+    [router]
+  );
 
-  const handleReadMore = (articleId: string) => {
-    router.push(`/article/${articleId}`); // Navigate to the article detail page
-  };
+  const handleLoadMore = useCallback(() => {
+    if (hasMore) {
+      fetchMore();
+    }
+  }, [fetchMore, hasMore]);
 
-  const handleShowMore = () => {
-    router.push('/article/all'); // Navigate to a page that shows all blogs
-  };
+  useEffect(() => {
+    if (initialFetch) {
+      console.log('Initial effect, fetching blogs'); // Log the first fetch
+      fetchMore(); // Fetch the first set of blogs on component mount
+      setInitialFetch(false); // Prevent re-fetching on subsequent renders
+    }
+  }, [fetchMore, initialFetch]); // Ensure the effect only runs once on mount
 
   return (
     <Box sx={{ padding: 4, maxWidth: 800, margin: '0 auto' }}>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleCreateBlog}
-        sx={{ mb: 2 }}
-      >
-        Create Blog
-      </Button>
-
       <Typography variant="h4" textAlign="center" gutterBottom>
-        Latest Blogs
+        All Articles
       </Typography>
 
       {error && (
@@ -52,19 +51,19 @@ const ArticlePage = () => {
       )}
 
       {loading ? (
-        <Typography variant="body1">Loading...</Typography>
+        <Typography variant="body1">Loading...</Typography> // Loading indicator
       ) : (
         blogs.map((blog) => (
           <Card key={blog.id} sx={{ mb: 2 }}>
-            {blog.images?.[0] ? (
-              <Image
-                src={blog.images?.[0]} // Validate URL
-                alt={`Image for ${blog.title}`}
-                layout="responsive" // Ensure responsive rendering
-                width={150} // Set consistent width
-                height={150} // Set consistent height
-                objectFit="cover" // Ensure correct image fit
-                // priority // Load this image with higher priority
+            {blog.firstImage ? (
+              <CardMedia
+                component="img"
+                image={blog.firstImage} // Ensure correct image URL
+                alt={`Image for ${blog.title}`} // Descriptive alt text
+                sx={{
+                  height: 150,
+                  objectFit: 'cover', // Ensure proper object fit
+                }}
               />
             ) : (
               <Typography
@@ -72,17 +71,18 @@ const ArticlePage = () => {
                 sx={{ textAlign: 'center', padding: 4 }}
               >
                 Image not available
-              </Typography> // Fallback if no image
+              </Typography>
             )}
 
             <CardContent>
               <Typography variant="h6">{blog.title}</Typography>
-              {/* Preview only a portion of the content */}
-              <ArticlePreview content={blog.content} />
+              <Typography variant="body2">
+                {blog.content.substring(0, 100)}...
+              </Typography>
               <Button
                 variant="outlined"
                 color="primary"
-                onClick={() => handleReadMore(blog.id)}
+                onClick={() => handleReadMore(blog.id)} // Navigate to the article
               >
                 Read More
               </Button>
@@ -91,17 +91,19 @@ const ArticlePage = () => {
         ))
       )}
 
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={handleShowMore}
-        fullWidth
-        sx={{ mt: 2 }}
-      >
-        Show More
-      </Button>
+      {hasMore && (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={handleLoadMore} // Load more blogs
+          fullWidth
+          sx={{ mt: 2 }}
+        >
+          Load More
+        </Button>
+      )}
     </Box>
   );
 };
 
-export default ArticlePage;
+export default ArticleAllPage;

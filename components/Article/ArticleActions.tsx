@@ -16,12 +16,10 @@ const ArticleActions = ({
 }: ArticleActionsProps) => {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-      {/* Like button with like count */}
       <Button variant="contained" color="primary" onClick={onLike}>
         Like {likesCount}
       </Button>
 
-      {/* Comment button with comment count */}
       <Button variant="outlined" color="primary" onClick={onComment}>
         Comment {commentsCount}
       </Button>

@@ -12,8 +12,10 @@ import { useState } from 'react';
 import { useThemeContext } from '../../app/theme';
 import useAuth from '../../hooks/useAuth';
 import Link from 'next/link';
+import { NavbarProps } from '@/types/types';
 
-const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
+const Navbar = ({ toggleSidebar }: NavbarProps) => {
+  // Use NavbarProps for correct type
   const { user, signOut } = useAuth();
   const { toggleTheme, isDarkMode } = useThemeContext();
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -37,13 +39,16 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
         >
           <MenuIcon />
         </IconButton>
+
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           My Blog
         </Typography>
+
         <ThemeToggleButton toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+
         {user ? (
           <>
-            <IconButton onClick={handleOpenUserMenu} color="inherit">
+            <IconButton color="inherit" onClick={handleOpenUserMenu}>
               {user.photoURL ? (
                 <Avatar
                   alt={user.displayName ?? 'User Avatar'}
@@ -53,6 +58,7 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
                 <AccountCircle />
               )}
             </IconButton>
+
             <Menu
               anchorEl={anchorElUser}
               keepMounted
@@ -63,20 +69,22 @@ const Navbar = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
               <MenuItem onClick={signOut}>
                 <Typography textAlign="center">Sign Out</Typography>
               </MenuItem>
-              <MenuItem>
-                <Link href="/profile" passHref>
+
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Link href="/profile">
                   <Typography textAlign="center">Profile</Typography>
                 </Link>
               </MenuItem>
-              <MenuItem>
-                <Link href="/dashboard" passHref>
+
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Link href="/dashboard">
                   <Typography textAlign="center">Dashboard</Typography>
                 </Link>
               </MenuItem>
             </Menu>
           </>
         ) : (
-          <Link href="/auth/sign-in" passHref>
+          <Link href="/auth/sign-in">
             <Typography variant="body1">Sign In</Typography>
           </Link>
         )}
