@@ -1,7 +1,6 @@
-// Sign-up page
 'use client';
 import { Box, Typography, Link } from '@mui/material';
-import NextLink from 'next/link'; // For Next.js navigation
+import NextLink from 'next/link';
 import SignUpForm from '../../../components/Auth/SignUpForm';
 
 const SignUpPage = () => {
@@ -11,7 +10,7 @@ const SignUpPage = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh', // Full viewport height
+        height: '100vh',
         padding: 2,
       }}
     >

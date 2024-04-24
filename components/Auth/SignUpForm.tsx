@@ -12,16 +12,15 @@ import {
 import useAuth from '../../hooks/useAuth';
 
 const SignUpForm = () => {
-  const { auth, user } = useAuth(); // Check current user status
-  const router = useRouter(); // Initialize router for navigation
+  const { auth, user } = useAuth();
+  const router = useRouter();
   if (!auth) {
     throw new Error('Firebase auth instance is not available.');
   }
 
-  // Redirect to home if user is already signed in
   useEffect(() => {
     if (user) {
-      router.push('/'); // Navigate to home if user is signed in
+      router.push('/');
     }
   }, [user, router]);
 
@@ -41,7 +40,6 @@ const SignUpForm = () => {
 
       await updateProfile(userCredential.user, { displayName });
 
-      // Redirect to sign-in after successful email/password sign-up
       router.push('/auth/sign-in');
     } catch (e) {
       if (e instanceof Error) {
@@ -58,7 +56,6 @@ const SignUpForm = () => {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
 
-      // Redirect to home after successful Google sign-in
       router.push('/');
     } catch (e) {
       if (e instanceof Error) {
@@ -73,8 +70,8 @@ const SignUpForm = () => {
     <Box
       component="form"
       onSubmit={(e) => {
-        e.preventDefault(); // Prevent default form submission
-        handleSignUp(); // Trigger sign-up logic
+        e.preventDefault();
+        handleSignUp();
       }}
       sx={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: 2 }}
     >

@@ -9,7 +9,7 @@ export interface FirebaseUser extends UserInfo {
   displayName: string;
   email: string;
   photoURL: string;
-  phoneNumber: string | null; // Type aligns with UserInfo
+  phoneNumber: string | null;
 }
 
 // Authentication context

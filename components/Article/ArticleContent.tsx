@@ -2,7 +2,7 @@ import React from 'react';
 import { Typography, Box } from '@mui/material';
 
 interface ArticleContentProps {
-  content: string; // Article content in HTML
+  content: string;
 }
 
 const ArticleContent = ({ content }: ArticleContentProps) => {
@@ -10,28 +10,28 @@ const ArticleContent = ({ content }: ArticleContentProps) => {
     <Box sx={{ padding: 2 }}>
       <Typography
         variant="body1"
-        component="div" // Allows rendering HTML content
-        dangerouslySetInnerHTML={{ __html: content }} // Render the content
+        component="div"
+        dangerouslySetInnerHTML={{ __html: content }}
         sx={{
-          lineHeight: 1.6, // Increase line height for readability
+          lineHeight: 1.6,
           img: {
-            maxWidth: '100%', // Ensure images do not overflow
+            maxWidth: '100%',
             width: '100%',
-            borderRadius: '8px', // Add border radius to images
-            margin: '10px 0', // Margin around images
+            borderRadius: '8px',
+            margin: '10px 0',
           },
           'h1, h2, h3, h4, h5, h6': {
-            fontWeight: 600, // Make headers bold
+            fontWeight: 600,
             marginTop: '16px',
             marginBottom: '8px',
           },
           'ul, ol': {
-            paddingLeft: '20px', // Padding for unordered and ordered lists
+            paddingLeft: '20px',
           },
           blockquote: {
-            borderLeft: '4px solid #ccc', // Styling for blockquotes
+            borderLeft: '4px solid #ccc',
             padding: '10px 20px',
-            fontStyle: 'italic', // Italicized text for blockquotes
+            fontStyle: 'italic',
           },
         }}
       />

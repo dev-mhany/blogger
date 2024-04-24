@@ -3,7 +3,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import Link from 'next/link'; // For navigation between pages
+import Link from 'next/link';
 import { SidebarProps } from '../../types/types';
 
 const Sidebar = ({ open, onClose }: SidebarProps) => {

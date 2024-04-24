@@ -2,10 +2,10 @@ import React from 'react';
 import { Button, Box } from '@mui/material';
 
 interface ArticleActionsProps {
-  onLike: () => void; // Function to handle the "Like" action
-  onComment: () => void; // Function to handle the "Comment" action
-  likesCount: number; // Number of likes
-  commentsCount: number; // Number of comments
+  onLike: () => void;
+  onComment: () => void;
+  likesCount: number;
+  commentsCount: number;
 }
 
 const ArticleActions = ({

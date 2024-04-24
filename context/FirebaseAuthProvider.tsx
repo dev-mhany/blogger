@@ -1,14 +1,14 @@
 'use client';
 import { createContext, ReactNode, useMemo } from 'react';
 import { getAuth } from 'firebase/auth';
-import { app } from '../firebase/firebaseClient'; // Ensure `app` is correctly imported
+import { app } from '../firebase/firebaseClient';
 
 interface FirebaseAuthProviderProps {
   children: ReactNode;
 }
 
 interface FirebaseAuthContextType {
-  auth: ReturnType<typeof getAuth>; // Define expected `auth` property
+  auth: ReturnType<typeof getAuth>;
 }
 
 export const FirebaseAuthContext = createContext<
@@ -16,10 +16,9 @@ export const FirebaseAuthContext = createContext<
 >(undefined);
 
 const FirebaseAuthProvider = ({ children }: FirebaseAuthProviderProps) => {
-  // Memoize the auth instance
   const auth = useMemo(() => getAuth(app), []);
 
-  const contextValue = useMemo(() => ({ auth }), [auth]); // Memoize the context value
+  const contextValue = useMemo(() => ({ auth }), [auth]);
 
   return (
     <FirebaseAuthContext.Provider value={contextValue}>

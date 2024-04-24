@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { TextField, Button, Box, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation'; // For programmatic navigation
+import { useRouter } from 'next/navigation';
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -9,18 +9,17 @@ import {
 } from 'firebase/auth';
 import useAuth from '../../hooks/useAuth';
 const SignInForm = () => {
-  const { auth, user } = useAuth(); // Check current user status
-  const router = useRouter(); // Initialize router for navigation
+  const { auth, user } = useAuth();
+  const router = useRouter();
   if (!auth) {
     throw new Error('Firebase auth instance is not available.');
   }
 
   useEffect(() => {
     if (user) {
-      // If user is signed in, redirect to the home page
       router.push('/');
     }
-  }, [user, router]); // Effect depends on `user` and `router`
+  }, [user, router]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +30,6 @@ const SignInForm = () => {
       setError(null);
       await signInWithEmailAndPassword(auth, email, password);
 
-      // Redirect to home page upon successful sign-in
       router.push('/');
     } catch (e) {
       if (e instanceof Error) {
@@ -48,7 +46,6 @@ const SignInForm = () => {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
 
-      // Redirect to home page upon successful Google sign-in
       router.push('/');
     } catch (e) {
       if (e instanceof Error) {
@@ -63,8 +60,8 @@ const SignInForm = () => {
     <Box
       component="form"
       onSubmit={(e) => {
-        e.preventDefault(); // Prevent default form submission
-        handleSignIn(); // Trigger email/password sign-in logic
+        e.preventDefault();
+        handleSignIn();
       }}
       sx={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: 2 }}
     >

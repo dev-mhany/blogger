@@ -18,7 +18,6 @@ const CreateArticle = () => {
   const [articleId, setArticleId] = useState<string | null>(null);
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
 
-  // Define the uploadImages function
   const uploadImages = async (files: File[]): Promise<UploadedImage[]> => {
     if (!user) {
       setError('User must be authenticated to upload images.');
@@ -46,12 +45,12 @@ const CreateArticle = () => {
     }
 
     setIsUploading(false);
-    return uploadedImagesData; // Return the uploaded images data
+    return uploadedImagesData;
   };
 
   const uploadArticle = async (
     article: Omit<Article, 'id' | 'createdAt'>,
-    files: File[] // Ensure you're passing the correct arguments
+    files: File[]
   ) => {
     if (!user) {
       setError('User must be authenticated to upload articles.');
@@ -62,7 +61,7 @@ const CreateArticle = () => {
       setError(null);
       setIsUploading(true);
 
-      const uploadedImagesData = await uploadImages(files); // Use the correct function
+      const uploadedImagesData = await uploadImages(files);
       setUploadedImages(uploadedImagesData);
 
       const articleData = {
@@ -72,7 +71,7 @@ const CreateArticle = () => {
         authorName: user.displayName ?? 'Anonymous',
         likes: [],
         comments: [],
-        images: uploadedImagesData.map((img) => img.downloadURL), // Ensure images are included
+        images: uploadedImagesData.map((img) => img.downloadURL),
       };
 
       const docRef = await addDoc(collection(db, 'articles'), {
@@ -80,7 +79,7 @@ const CreateArticle = () => {
         createdAt: Timestamp.now(),
       });
 
-      setArticleId(docRef.id); // Store the new document ID
+      setArticleId(docRef.id);
     } catch (e) {
       if (e instanceof Error) {
         setError(`Failed to upload article: ${e.message}`);
@@ -98,7 +97,7 @@ const CreateArticle = () => {
     articleId,
     uploadedImages,
     uploadArticle,
-    uploadImages, // Add the uploadImages function to the return object
+    uploadImages,
   };
 };
 

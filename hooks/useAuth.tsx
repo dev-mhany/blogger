@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { FirebaseAuthContext } from '../context/FirebaseAuthProvider'; // Correct context import
+import { FirebaseAuthContext } from '../context/FirebaseAuthProvider';
 import {
   onAuthStateChanged,
   signOut as firebaseSignOut,
@@ -8,37 +8,37 @@ import {
 } from 'firebase/auth';
 
 interface UseAuthResult {
-  auth: Auth; // Firebase Authentication instance
-  user: User | null; // Nullable user state
+  auth: Auth;
+  user: User | null;
   uid?: string;
-  loading: boolean; // Loading state
-  signOut: () => Promise<void>; // Sign-out function
+  loading: boolean;
+  signOut: () => Promise<void>;
 }
 
 const useAuth = (): UseAuthResult => {
-  const context = useContext(FirebaseAuthContext); // Retrieve the context
+  const context = useContext(FirebaseAuthContext);
   if (!context?.auth) {
     throw new Error(
       'FirebaseAuthContext is undefined. Ensure FirebaseAuthProvider is used.'
     );
   }
 
-  const { auth } = context; // Get the `auth` instance from context
+  const { auth } = context;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       setUser(authUser);
-      setLoading(false); // Mark loading as complete once the user state changes
+      setLoading(false);
     });
 
-    return () => unsubscribe(); // Clean up listener on unmount
+    return () => unsubscribe();
   }, [auth]);
 
   const signOut = async () => {
-    await firebaseSignOut(auth); // Firebase sign-out logic
-    setUser(null); // Reset user after sign-out
+    await firebaseSignOut(auth);
+    setUser(null);
   };
 
   return {

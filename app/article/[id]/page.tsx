@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,25 +6,25 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 import ArticleHeader from '../../../components/Article/ArticleHeader';
 import ArticleContent from '../../../components/Article/ArticleContent';
 import ArticleActions from '../../../components/Article/ArticleActions';
-import { getArticleById } from '../../../lib/firestoreUtils'; // Function to fetch article by ID
+import { getArticleById } from '../../../lib/firestoreUtils';
 import { Article } from '../../../types/types';
 
 const ArticlePage = () => {
   const params = useParams();
-  const articleId = Array.isArray(params.id) ? params.id[0] : params.id; // Handle possible array
-  const [article, setArticle] = useState<Article | null>(null); // State for the article
-  const [loading, setLoading] = useState(true); // Track loading status
+  const articleId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [article, setArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticle = async () => {
       if (articleId) {
         const fetchedArticle = await getArticleById(articleId);
         setArticle(fetchedArticle);
-        setLoading(false); // Mark loading as complete once article is fetched
+        setLoading(false);
       }
     };
 
-    fetchArticle(); // Fetch the article on component mount
+    fetchArticle();
   }, [articleId]);
 
   if (loading) {
@@ -56,16 +55,17 @@ const ArticlePage = () => {
       <ArticleHeader
         title={article.title}
         authorName={article.authorName}
-        authorImage={article.authorImage} // Display the author image
-        createdAt={article.createdAt.toDate()} // Convert Firestore Timestamp to JS Date
+        authorImage={article.authorImage}
+        createdAt={article.createdAt.toDate()}
       />
       <ArticleContent content={article.content} /> {/* Display content */}
       {article.images && (
         <Box sx={{ padding: 2, textAlign: 'center' }}>
           {article.images.map((imageUrl, index) => (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               key={index}
-              src={imageUrl} // Correctly assign the image URL
+              src={imageUrl}
               alt={`Article image ${index}`}
               style={{
                 maxWidth: '50%',
@@ -79,14 +79,14 @@ const ArticlePage = () => {
                 display: 'inline-block',
                 borderRadius: '8px',
                 cursor: 'pointer',
-              }} // Proper styling
+              }}
             />
           ))}
         </Box>
       )}
       <ArticleActions
-        onLike={() => console.log('Liked the article')} // Functionality for Like
-        onComment={() => console.log('Comment on the article')} // Functionality for Comment
+        onLike={() => console.log('Liked the article')}
+        onComment={() => console.log('Comment on the article')}
         likesCount={article.likes.length}
         commentsCount={article.comments.length}
       />
