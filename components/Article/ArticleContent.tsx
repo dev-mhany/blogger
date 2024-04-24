@@ -14,12 +14,12 @@ const ArticleContent = ({ content }: ArticleContentProps) => {
         dangerouslySetInnerHTML={{ __html: content }} // Render the content
         sx={{
           lineHeight: 1.6, // Increase line height for readability
-          //   img: {
-          //     maxWidth: '100%', // Ensure images do not overflow
-          //     width: '100%',
-          //     borderRadius: '8px', // Add border radius to images
-          //     margin: '10px 0', // Margin around images
-          //   },
+          img: {
+            maxWidth: '100%', // Ensure images do not overflow
+            width: '100%',
+            borderRadius: '8px', // Add border radius to images
+            margin: '10px 0', // Margin around images
+          },
           'h1, h2, h3, h4, h5, h6': {
             fontWeight: 600, // Make headers bold
             marginTop: '16px',

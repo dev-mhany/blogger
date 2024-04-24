@@ -1,93 +1,92 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Typography, Box } from '@mui/material';
-import { usePathname } from 'next/navigation';
-import useFetchAllBlogs from '../../../hooks/useFetchAllBlogs';
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import ArticleHeader from '../../../components/Article/ArticleHeader';
 import ArticleContent from '../../../components/Article/ArticleContent';
 import ArticleActions from '../../../components/Article/ArticleActions';
-import Image from 'next/image';
+import { getArticleById } from '../../../lib/firestoreUtils'; // Function to fetch article by ID
+import { Article } from '../../../types/types';
 
-interface Blog {
-  id: string;
-  title: string;
-  content: string;
-  authorId: string;
-  createdAt: Date;
-  images?: string[];
-  firstImage?: string;
-  authorName?: string;
-  authorImage?: string;
-  likes: string[];
-  comments: string[];
-}
-
-const ArticleDetailPage = () => {
-  const { blogs, loading, error } = useFetchAllBlogs();
-  const pathname = usePathname();
-
-  const articleId = pathname.split('/').pop();
-  const [article, setArticle] = useState<Blog | null>(null); // Ensure the type is Blog
+const ArticlePage = () => {
+  const params = useParams();
+  const articleId = Array.isArray(params.id) ? params.id[0] : params.id; // Handle possible array
+  const [article, setArticle] = useState<Article | null>(null); // State for the article
+  const [loading, setLoading] = useState(true); // Track loading status
 
   useEffect(() => {
-    if (blogs && articleId) {
-      const foundArticle = blogs.find((blog) => blog.id === articleId) || null;
-      setArticle(foundArticle as Blog); // Ensure type compatibility
-    }
-  }, [blogs, articleId]);
+    const fetchArticle = async () => {
+      if (articleId) {
+        const fetchedArticle = await getArticleById(articleId);
+        setArticle(fetchedArticle);
+        setLoading(false); // Mark loading as complete once article is fetched
+      }
+    };
+
+    fetchArticle(); // Fetch the article on component mount
+  }, [articleId]);
 
   if (loading) {
-    return <Typography variant="body1">Loading...</Typography>;
-  }
-
-  if (error) {
     return (
-      <Typography color="error" variant="body2">
-        {error}
-      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
   if (!article) {
     return (
-      <Typography color="error" variant="body2">
-        Article not found
-      </Typography>
+      <Box sx={{ textAlign: 'center', padding: 4 }}>
+        <Typography variant="h5">Article not found</Typography>
+      </Box>
     );
   }
 
   return (
-    <Box sx={{ padding: 4, maxWidth: 800, margin: '0 auto' }}>
+    <Box sx={{ padding: 4 }}>
       <ArticleHeader
         title={article.title}
-        authorName={article.authorName ?? 'Unknown'} // Fallback for authorName
-        authorImage={article.authorImage}
-        createdAt={article.createdAt} // Keep as Date
+        authorName={article.authorName}
+        authorImage={article.authorImage} // Display the author image
+        createdAt={article.createdAt.toDate()} // Convert Firestore Timestamp to JS Date
       />
-
-      <ArticleContent content={article.content} />
-
-      {article.images && article.images.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 2, overflowX: 'scroll', my: 2 }}>
-          {article.images.map((img) => (
-            <Image
-              key={img} // Use image URL as a unique key
-              src={img}
-              unoptimized
-              sizes="100vw"
-              width={0}
-              height={0}
-              alt={`Image for ${article.title}`}
-              style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+      <ArticleContent content={article.content} /> {/* Display content */}
+      {article.images && (
+        <Box sx={{ padding: 2, textAlign: 'center' }}>
+          {article.images.map((imageUrl, index) => (
+            <img
+              key={index}
+              src={imageUrl} // Correctly assign the image URL
+              alt={`Article image ${index}`}
+              style={{
+                maxWidth: '50%',
+                height: 'auto',
+                objectFit: 'cover',
+                marginBottom: '10px',
+                border: '1px solid #ccc',
+                padding: '5px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                margin: '10px 0',
+                display: 'inline-block',
+                borderRadius: '8px',
+                cursor: 'pointer',
+              }} // Proper styling
             />
           ))}
         </Box>
       )}
-
       <ArticleActions
-        onLike={() => console.log('Liked')}
-        onComment={() => console.log('Commented')}
+        onLike={() => console.log('Liked the article')} // Functionality for Like
+        onComment={() => console.log('Comment on the article')} // Functionality for Comment
         likesCount={article.likes.length}
         commentsCount={article.comments.length}
       />
@@ -95,4 +94,4 @@ const ArticleDetailPage = () => {
   );
 };
 
-export default ArticleDetailPage;
+export default ArticlePage;

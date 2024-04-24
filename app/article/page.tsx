@@ -1,109 +1,93 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Typography,
   Box,
+  Typography,
+  Button,
+  Grid,
   Card,
   CardContent,
   CardMedia,
-  Button,
+  LinearProgress,
 } from '@mui/material';
-import useFetchAllBlogs from '../../hooks/useFetchAllBlogs';
-import { useRouter } from 'next/navigation';
+import useFetchBlogs from '../../hooks/useFetchBlogs';
+import Link from 'next/link';
+import ArticlePreview from '../../components/Article/ArticlePreview';
 
-const ArticleAllPage = () => {
-  const [initialFetch, setInitialFetch] = useState(true);
-  const { blogs, loading, error, fetchMore, hasMore } = useFetchAllBlogs();
-  const router = useRouter();
+const AllArticlesPage = () => {
+  const { blogs } = useFetchBlogs(); // Fetch initial blogs and listen for updates
+  const [visibleBlogsCount, setVisibleBlogsCount] = useState(8); // How many blogs to show initially
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
 
-  const handleReadMore = useCallback(
-    (articleId: string) => {
-      router.push(`/article/${articleId}`);
-    },
-    [router]
-  );
+  const loadMoreBlogs = () => {
+    setIsLoading(true); // Start loading state
+    setVisibleBlogsCount((prev) => prev + 4); // Increase the visible count by 4
+    setIsLoading(false); // Reset loading state
+  };
 
-  const handleLoadMore = useCallback(() => {
-    if (hasMore) {
-      fetchMore();
-    }
-  }, [fetchMore, hasMore]);
-
-  useEffect(() => {
-    if (initialFetch) {
-      console.log('Initial effect, fetching blogs'); // Log the first fetch
-      fetchMore(); // Fetch the first set of blogs on component mount
-      setInitialFetch(false); // Prevent re-fetching on subsequent renders
-    }
-  }, [fetchMore, initialFetch]); // Ensure the effect only runs once on mount
+  const uniqueBlogs = Array.from(new Set(blogs.map((blog) => blog.id))).map(
+    (id) => blogs.find((blog) => blog.id === id)
+  ); // Ensure unique blogs
 
   return (
-    <Box sx={{ padding: 4, maxWidth: 800, margin: '0 auto' }}>
-      <Typography variant="h4" textAlign="center" gutterBottom>
-        All Articles
-      </Typography>
-
-      {error && (
-        <Typography color="error" variant="body2">
-          {error}
-        </Typography>
-      )}
-
-      {loading ? (
-        <Typography variant="body1">Loading...</Typography> // Loading indicator
-      ) : (
-        blogs.map((blog) => (
-          <Card key={blog.id} sx={{ mb: 2 }}>
-            {blog.firstImage ? (
-              <CardMedia
-                component="img"
-                image={blog.firstImage} // Ensure correct image URL
-                alt={`Image for ${blog.title}`} // Descriptive alt text
-                sx={{
-                  height: 150,
-                  objectFit: 'cover', // Ensure proper object fit
-                }}
-              />
-            ) : (
-              <Typography
-                color="textSecondary"
-                sx={{ textAlign: 'center', padding: 4 }}
-              >
-                Image not available
-              </Typography>
-            )}
-
-            <CardContent>
-              <Typography variant="h6">{blog.title}</Typography>
-              <Typography variant="body2">
-                {blog.content.substring(0, 100)}...
-              </Typography>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => handleReadMore(blog.id)} // Navigate to the article
-              >
-                Read More
-              </Button>
-            </CardContent>
-          </Card>
-        ))
-      )}
-
-      {hasMore && (
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={handleLoadMore} // Load more blogs
-          fullWidth
-          sx={{ mt: 2 }}
-        >
-          Load More
-        </Button>
-      )}
+    <Box sx={{ padding: 4 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 4,
+        }}
+      >
+        <Typography variant="h4">All Blogs</Typography>
+        <Link href="/article/create">
+          <Button variant="contained" color="primary">
+            Create Blog
+          </Button>
+        </Link>
+      </Box>
+      <Grid container spacing={2}>
+        {' '}
+        {/* Start the grid layout */}
+        {uniqueBlogs.slice(0, visibleBlogsCount).map((blog) => (
+          <Grid item xs={12} sm={6} md={3} key={blog?.id}>
+            {' '}
+            {/* Each item takes 1/4 of the row */}
+            <Card sx={{ height: '100%' }}>
+              {blog?.images?.[0] && (
+                <CardMedia
+                  component="img"
+                  height="auto"
+                  image={blog.images[0]}
+                  alt="Blog Preview"
+                  sx={{ objectFit: 'cover' }}
+                />
+              )}
+              <CardContent>
+                <Typography variant="h5">{blog?.title}</Typography>
+                <Typography variant="body2">By {blog?.authorName}</Typography>
+                <ArticlePreview content={blog?.content || ''} />
+                <Link href={`/article/${blog?.id}`}>
+                  <Button variant="text">Read More</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+      {isLoading && <LinearProgress sx={{ mt: 2 }} />} {/* Loading indicator */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={loadMoreBlogs}
+        sx={{ mt: 2 }}
+        disabled={isLoading} // Disable while loading
+      >
+        Load More
+      </Button>
     </Box>
   );
 };
 
-export default ArticleAllPage;
+export default AllArticlesPage;
