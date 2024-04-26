@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import './quill.snow.css';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import useAuth from '../../../hooks/useAuth';
