@@ -19,7 +19,7 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
         <Divider />
 
         <ListItem onClick={onClose}>
-          <Link href="/settings" passHref>
+          <Link href="/user/settings" passHref>
             <ListItemText primary="Settings" />
           </Link>
         </ListItem>

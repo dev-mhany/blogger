@@ -9,18 +9,22 @@ import {
   GoogleAuthProvider,
   updateProfile,
 } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore';
 import useAuth from '../../hooks/useAuth';
+import { UserProfile } from '../../types/types'; // UserProfile type
+import { db } from '../../firebase/firebaseClient'; // Firestore instance
 
 const SignUpForm = () => {
   const { auth, user } = useAuth();
   const router = useRouter();
+
   if (!auth) {
     throw new Error('Firebase auth instance is not available.');
   }
 
   useEffect(() => {
     if (user) {
-      router.push('/');
+      router.push('/'); // Redirect after sign-up
     }
   }, [user, router]);
 
@@ -28,6 +32,20 @@ const SignUpForm = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const createUserProfile = async (userId: string, displayName: string) => {
+    const newUser: UserProfile = {
+      uid: userId,
+      displayName,
+      email,
+      bio: '',
+      articles: [],
+      photoURL: '',
+    };
+
+    // Create a new Firestore document for the user
+    await setDoc(doc(db, 'users', userId), newUser);
+  };
 
   const handleSignUp = async () => {
     try {
@@ -40,7 +58,10 @@ const SignUpForm = () => {
 
       await updateProfile(userCredential.user, { displayName });
 
-      router.push('/auth/sign-in');
+      // Create the user document in Firestore
+      await createUserProfile(userCredential.user.uid, displayName);
+
+      router.push('/auth/sign-in'); // Redirect to sign-in
     } catch (e) {
       if (e instanceof Error) {
         setError(e.message);
@@ -50,13 +71,16 @@ const SignUpForm = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (result: any) => {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
 
-      router.push('/');
+      // Create a new Firestore document for the Google user
+      await createUserProfile(result.user.uid, result.user.displayName ?? '');
+
+      router.push('/'); // Redirect to the homepage
     } catch (e) {
       if (e instanceof Error) {
         setError(e.message);
@@ -87,27 +111,27 @@ const SignUpForm = () => {
 
       <TextField
         label="Display Name"
-        value={displayName}
         fullWidth
         margin="normal"
+        value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
       />
 
       <TextField
         label="Email"
-        type="email"
-        value={email}
         fullWidth
         margin="normal"
+        value={email}
+        type="email"
         onChange={(e) => setEmail(e.target.value)}
       />
 
       <TextField
         label="Password"
-        type="password"
-        value={password}
         fullWidth
         margin="normal"
+        type="password"
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
 

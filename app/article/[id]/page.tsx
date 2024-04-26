@@ -24,8 +24,8 @@ const ArticlePage = () => {
       }
     };
 
-    fetchArticle();
-  }, [articleId]);
+    fetchArticle(); // Fetch on component mount
+  }, [articleId]); // Ensure correct dependencies
 
   if (loading) {
     return (
@@ -37,7 +37,7 @@ const ArticlePage = () => {
           height: '100vh',
         }}
       >
-        <CircularProgress />
+        <CircularProgress /> {/* Loading spinner */}
       </Box>
     );
   }
@@ -45,7 +45,8 @@ const ArticlePage = () => {
   if (!article) {
     return (
       <Box sx={{ textAlign: 'center', padding: 4 }}>
-        <Typography variant="h5">Article not found</Typography>
+        <Typography variant="h5">Article not found</Typography>{' '}
+        {/* Error handling */}
       </Box>
     );
   }
@@ -56,9 +57,9 @@ const ArticlePage = () => {
         title={article.title}
         authorName={article.authorName}
         authorImage={article.authorImage}
-        createdAt={article.createdAt.toDate()}
+        createdAt={article.createdAt?.toDate() ?? new Date()} // Ensure createdAt is valid
       />
-      <ArticleContent content={article.content} /> {/* Display content */}
+      <ArticleContent content={article.content} /> {/* Content rendering */}
       {article.images && (
         <Box sx={{ padding: 2, textAlign: 'center' }}>
           {article.images.map((imageUrl, index) => (
@@ -71,14 +72,12 @@ const ArticlePage = () => {
                 maxWidth: '50%',
                 height: 'auto',
                 objectFit: 'cover',
-                marginBottom: '10px',
                 border: '1px solid #ccc',
                 padding: '5px',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                 margin: '10px 0',
                 display: 'inline-block',
                 borderRadius: '8px',
-                cursor: 'pointer',
               }}
             />
           ))}
@@ -87,8 +86,8 @@ const ArticlePage = () => {
       <ArticleActions
         onLike={() => console.log('Liked the article')}
         onComment={() => console.log('Comment on the article')}
-        likesCount={article.likes.length}
-        commentsCount={article.comments.length}
+        likesCount={article.likes?.length ?? 0} // Ensure safe access
+        commentsCount={article.comments?.length ?? 0} // Ensure safe access
       />
     </Box>
   );

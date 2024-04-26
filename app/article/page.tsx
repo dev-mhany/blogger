@@ -48,8 +48,6 @@ const AllArticlesPage = () => {
         </Link>
       </Box>
       <Grid container spacing={2}>
-        {' '}
-        {/* Start the grid layout */}
         {uniqueBlogs.slice(0, visibleBlogsCount).map((blog) => (
           <Grid item xs={12} sm={6} md={3} key={blog?.id}>
             {' '}

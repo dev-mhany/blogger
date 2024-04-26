@@ -1,71 +1,107 @@
-import Image from 'next/image';
-import styles from './page.module.css';
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Avatar,
+} from '@mui/material';
+import Link from 'next/link';
 
-export default function Home() {
+const BlogLandingPage = () => {
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a target="_blank" rel="noopener noreferrer">
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <main>
+      {/* Hero section */}
+      <Box
+        sx={{
+          background: 'linear-gradient(to right, #6a11cb, #2575fc)',
+          color: 'white',
+          padding: '50px 20px',
+          textAlign: 'center',
+        }}
+      >
+        <Typography variant="h2" gutterBottom>
+          Welcome to Your Blog
+        </Typography>
+        <Typography variant="body1">
+          Discover articles on various topics, from technology to lifestyle.
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginTop: 2 }}
+          component={Link}
+          href="/article"
+        >
+          Explore Blogs
+        </Button>
+      </Box>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      {/* Features section */}
+      <Grid container spacing={4} sx={{ padding: '40px 20px' }}>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5">Rich Content</Typography>
+              <Typography variant="body2">
+                Our blog offers a wide range of articles with rich multimedia
+                content.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5">Community</Typography>
+              <Typography variant="body2">
+                Engage with a community of like-minded individuals and share
+                your thoughts.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5">Personalized Experience</Typography>
+              <Typography variant="body2">
+                Create a personalized experience with user accounts and
+                customization options.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-      <div className={styles.grid}>
-        <a className={styles.card} target="_blank" rel="noopener noreferrer">
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a className={styles.card} target="_blank" rel="noopener noreferrer">
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a className={styles.card} target="_blank" rel="noopener noreferrer">
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a className={styles.card} target="_blank" rel="noopener noreferrer">
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      {/* CTA section */}
+      <Box
+        sx={{
+          background: '#f5f5f5',
+          padding: '30px 20px',
+          textAlign: 'center',
+        }}
+      >
+        <Typography variant="h4" gutterBottom>
+          Ready to Start Your Blog?
+        </Typography>
+        <Typography variant="body1">
+          Sign up today to create your own blog and share your stories with the
+          world.
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginTop: 2 }}
+          component={Link}
+          href="/auth/sign-up"
+        >
+          Sign Up Now
+        </Button>
+      </Box>
     </main>
   );
-}
+};
+
+export default BlogLandingPage;

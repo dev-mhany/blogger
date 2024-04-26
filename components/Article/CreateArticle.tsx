@@ -1,7 +1,12 @@
-import { useState } from 'react';
-import { addDoc, collection, Timestamp } from 'firebase/firestore';
-import { db } from '../../firebase/firebaseClient';
-import { storage } from '../../firebase/firebaseClient';
+import {
+  addDoc,
+  collection,
+  doc,
+  updateDoc,
+  arrayUnion,
+  Timestamp,
+} from 'firebase/firestore';
+import { storage, db } from '../../firebase/firebaseClient';
 import {
   uploadBytes,
   getDownloadURL,
@@ -10,20 +15,15 @@ import {
 import useAuth from '../../hooks/useAuth';
 import { Article, UploadedImage } from '../../types/types';
 import { v4 as uuidv4 } from 'uuid';
+import { useState } from 'react';
 
 const CreateArticle = () => {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [articleId, setArticleId] = useState<string | null>(null);
-  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
 
   const uploadImages = async (files: File[]): Promise<UploadedImage[]> => {
-    if (!user) {
-      setError('User must be authenticated to upload images.');
-      return [];
-    }
-
     const uploadedImagesData: UploadedImage[] = [];
     setIsUploading(true);
 
@@ -39,7 +39,9 @@ const CreateArticle = () => {
         });
       } catch (e) {
         if (e instanceof Error) {
-          setError(`Failed to upload image: ${e.message}`);
+          setError(`Failed to upload image: ${e.message}`); // Handle specific error
+        } else {
+          setError('Failed to upload image due to an unknown error.'); // Generic error message
         }
       }
     }
@@ -57,45 +59,38 @@ const CreateArticle = () => {
       return;
     }
 
-    try {
-      setError(null);
-      setIsUploading(true);
+    setError(null);
+    setIsUploading(true);
 
-      const uploadedImagesData = await uploadImages(files);
-      setUploadedImages(uploadedImagesData);
+    const uploadedImagesData = await uploadImages(files);
+    const articleData = {
+      title: article.title,
+      content: article.content,
+      authorId: user.uid,
+      authorName: user.displayName ?? 'Anonymous',
+      images: uploadedImagesData.map((img) => img.downloadURL),
+    };
 
-      const articleData = {
-        title: article.title,
-        content: article.content,
-        authorId: user.uid,
-        authorName: user.displayName ?? 'Anonymous',
-        likes: [],
-        comments: [],
-        images: uploadedImagesData.map((img) => img.downloadURL),
-      };
+    const docRef = await addDoc(collection(db, 'articles'), {
+      ...articleData,
+      createdAt: Timestamp.now(),
+    });
 
-      const docRef = await addDoc(collection(db, 'articles'), {
-        ...articleData,
-        createdAt: Timestamp.now(),
-      });
+    setArticleId(docRef.id);
 
-      setArticleId(docRef.id);
-    } catch (e) {
-      if (e instanceof Error) {
-        setError(`Failed to upload article: ${e.message}`);
-      } else {
-        setError('Failed to upload the article.');
-      }
-    } finally {
-      setIsUploading(false);
-    }
+    // Add the article ID to the user's document
+    const userDocRef = doc(db, 'users', user.uid);
+    await updateDoc(userDocRef, {
+      articles: arrayUnion(docRef.id),
+    });
+
+    setIsUploading(false);
   };
 
   return {
     isUploading,
     error,
     articleId,
-    uploadedImages,
     uploadArticle,
     uploadImages,
   };

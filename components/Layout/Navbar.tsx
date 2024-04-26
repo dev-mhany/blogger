@@ -1,3 +1,4 @@
+// components/Layout/Navbar.tsx
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -13,10 +14,10 @@ import { useThemeContext } from '../../app/theme';
 import useAuth from '../../hooks/useAuth';
 import Link from 'next/link';
 import { NavbarProps } from '@/types/types';
+import { CircularProgress } from '@mui/material';
 
 const Navbar = ({ toggleSidebar }: NavbarProps) => {
-  // Use NavbarProps for correct type
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const { toggleTheme, isDarkMode } = useThemeContext();
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
@@ -35,7 +36,7 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
           edge="start"
           color="inherit"
           aria-label="menu"
-          onClick={toggleSidebar}
+          onClick={toggleSidebar} // Correctly type `toggleSidebar`
         >
           <MenuIcon />
         </IconButton>
@@ -46,47 +47,53 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
 
         <ThemeToggleButton toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
 
-        {user ? (
-          <>
-            <IconButton color="inherit" onClick={handleOpenUserMenu}>
-              {user.photoURL ? (
-                <Avatar
-                  alt={user.displayName ?? 'User Avatar'}
-                  src={user.photoURL}
-                />
-              ) : (
-                <AccountCircle />
-              )}
-            </IconButton>
-
-            <Menu
-              anchorEl={anchorElUser}
-              keepMounted
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              sx={{ mt: '45px' }}
-            >
-              <MenuItem onClick={signOut}>
-                <Typography textAlign="center">Sign Out</Typography>
-              </MenuItem>
-
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Link href="/profile">
-                  <Typography textAlign="center">Profile</Typography>
-                </Link>
-              </MenuItem>
-
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Link href="/dashboard">
-                  <Typography textAlign="center">Dashboard</Typography>
-                </Link>
-              </MenuItem>
-            </Menu>
-          </>
+        {loading ? (
+          <CircularProgress sx={{ color: 'white', ml: 'auto', mr: 'auto' }} />
         ) : (
-          <Link href="/auth/sign-in">
-            <Typography variant="body1">Sign In</Typography>
-          </Link>
+          <>
+            {user ? (
+              <>
+                <IconButton color="inherit" onClick={handleOpenUserMenu}>
+                  {user.photoURL ? (
+                    <Avatar
+                      alt={user.displayName ?? 'User Avatar'}
+                      src={user.photoURL}
+                    />
+                  ) : (
+                    <AccountCircle />
+                  )}
+                </IconButton>
+
+                <Menu
+                  anchorEl={anchorElUser}
+                  keepMounted
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                  sx={{ mt: '45px' }}
+                >
+                  <MenuItem onClick={signOut}>
+                    <Typography textAlign="center">Sign Out</Typography>
+                  </MenuItem>
+
+                  <MenuItem onClick={handleCloseUserMenu}>
+                    <Link href={`/user/${user.uid}`}>
+                      <Typography textAlign="center">Profile</Typography>
+                    </Link>
+                  </MenuItem>
+
+                  <MenuItem onClick={handleCloseUserMenu}>
+                    <Link href="/article">
+                      <Typography textAlign="center">Article</Typography>
+                    </Link>
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Link href="/auth/sign-in">
+                <Typography variant="body1">Sign In</Typography>
+              </Link>
+            )}
+          </>
         )}
       </Toolbar>
     </AppBar>

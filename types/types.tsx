@@ -37,7 +37,7 @@ export interface Article {
 
 // User profile data structure
 export interface UserProfile {
-  id: string;
+  uid: string;
   displayName: string;
   email: string;
   bio?: string;
