@@ -1,31 +1,32 @@
+/* eslint-disable @next/next/no-img-element */
+
 'use client';
-import { useState, useEffect } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import {
+  TextField,
+  Button,
   Box,
   Typography,
-  Button,
+  LinearProgress,
   Grid,
   IconButton,
-  LinearProgress,
-  TextField,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-import dynamic from 'next/dynamic';
 import useAuth from '../../../hooks/useAuth';
 import CreateArticle from '../../../components/Article/CreateArticle';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const ReactQuill = dynamic(() => import('react-quill'), {
-  ssr: false,
-}); // Dynamic import with SSR disabled
-
 const ArticleCreatePage = () => {
-  const { user } = useAuth();
   const router = useRouter();
   const { uploadArticle, isUploading, error, uploadImages } = CreateArticle();
+  const { user } = useAuth();
 
+  const storage = getStorage();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -63,14 +64,14 @@ const ArticleCreatePage = () => {
       content,
       authorId: user.uid,
       authorName: user.displayName ?? 'Anonymous',
-      images: [] as string[],
       likes: [],
       comments: [],
+      images: [] as string[],
     };
 
     if (imageFiles.length > 0) {
-      const uploadedImageUrls = await uploadImages(imageFiles);
-      articleData.images = uploadedImageUrls.map((img) => img.downloadURL);
+      const imageUrls = await uploadImages(imageFiles);
+      // articleData.images = imageUrls;
     }
 
     await uploadArticle(articleData, imageFiles);
@@ -121,7 +122,7 @@ const ArticleCreatePage = () => {
       <Typography variant="h6" sx={{ mt: 2 }} gutterBottom>
         Upload Images
       </Typography>
-      <Button variant="contained" component="label" fullWidth>
+      <Button variant="contained" component="label">
         Upload Images
         <input
           type="file"
@@ -135,7 +136,6 @@ const ArticleCreatePage = () => {
         {thumbnailURLs.map((url, index) => (
           <Grid item key={index}>
             <Box sx={{ position: 'relative', width: 100, height: 100 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
                 alt={`Thumbnail ${index}`}
@@ -144,8 +144,8 @@ const ArticleCreatePage = () => {
               <IconButton
                 size="small"
                 color="error"
-                onClick={() => removeImage(index)}
                 sx={{ position: 'absolute', top: 0, right: 0 }}
+                onClick={() => removeImage(index)}
               >
                 <DeleteIcon />
               </IconButton>
