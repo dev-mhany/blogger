@@ -62,7 +62,7 @@ const ArticleCreatePage = () => {
       content,
       authorId: user.uid,
       authorName: user.displayName ?? 'Anonymous',
-      images: [],
+      images: [] as string[],
       likes: [],
       comments: [],
     };
