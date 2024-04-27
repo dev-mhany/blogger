@@ -97,7 +97,7 @@ const ArticleCreatePage = () => {
       <CreateArticle
         title={title}
         imageFiles={imageFiles}
-        onArticleCreated={handleArticleCreated}
+        // onArticleCreated={handleArticleCreated}
       />
     </Box>
   );

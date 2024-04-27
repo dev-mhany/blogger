@@ -24,32 +24,21 @@ import {
   Button,
   TextField,
 } from '@mui/material';
-import ReactQuill from 'react-quill'; // Ensure this only runs on the client-side
+import ReactQuill from 'react-quill';
 import { db } from '@/firebase/firebaseClient';
+import { useRouter } from 'next/navigation'; // Import the useRouter hook
 
-// Define the expected prop types
 interface CreateArticleProps {
   title: string;
   imageFiles: File[];
-  onArticleCreated: (id: string) => void;
 }
 
-const CreateArticle: React.FC<CreateArticleProps> = ({
-  title,
-  imageFiles,
-  onArticleCreated,
-}) => {
+const CreateArticle: React.FC<CreateArticleProps> = ({ title, imageFiles }) => {
+  const router = useRouter(); // Initialize the router
   const { user } = useAuth();
   const [content, setContent] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      // Prevent client-side code from running during server-side rendering
-      return;
-    }
-  }, []);
 
   const uploadImages = async (files: File[]): Promise<UploadedImage[]> => {
     const storage = getStorage();
@@ -95,7 +84,7 @@ const CreateArticle: React.FC<CreateArticleProps> = ({
 
     const uploadedImages = await uploadImages(imageFiles);
 
-    const newArticle: Omit<Article, 'id' | 'createdAt'> = {
+    const newArticle = {
       title,
       content,
       authorId: user.uid,
@@ -110,7 +99,6 @@ const CreateArticle: React.FC<CreateArticleProps> = ({
       createdAt: Timestamp.now(),
     });
 
-    // Update user document with the new article ID
     const userDocRef = doc(db, 'users', user.uid);
     await updateDoc(userDocRef, {
       articles: arrayUnion(docRef.id),
@@ -118,9 +106,8 @@ const CreateArticle: React.FC<CreateArticleProps> = ({
 
     setIsUploading(false);
 
-    if (onArticleCreated) {
-      onArticleCreated(docRef.id);
-    }
+    // Redirect to /article after creation
+    router.push('/article');
   };
 
   return (
@@ -131,13 +118,6 @@ const CreateArticle: React.FC<CreateArticleProps> = ({
         </Typography>
       )}
       {isUploading && <LinearProgress sx={{ marginTop: 2 }} />}
-      {/* <TextField
-        label="Content"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        fullWidth
-        margin="normal"
-      /> */}
       {typeof window !== 'undefined' && (
         <ReactQuill
           value={content}
