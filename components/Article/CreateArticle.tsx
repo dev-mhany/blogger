@@ -1,3 +1,7 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   addDoc,
   collection,
@@ -10,23 +14,15 @@ import {
   uploadBytes,
   getDownloadURL,
   ref as storageRef,
+  getStorage,
 } from 'firebase/storage';
-import React, { useState, useEffect } from 'react';
-import { getStorage } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
+import { Box, Typography, LinearProgress, Button } from '@mui/material';
 import useAuth from '../../hooks/useAuth';
 import { Article, UploadedImage } from '../../types/types';
-import { v4 as uuidv4 } from 'uuid';
-import 'react-quill/dist/quill.snow.css';
-import {
-  Box,
-  Typography,
-  LinearProgress,
-  Button,
-  TextField,
-} from '@mui/material';
-import ReactQuill from 'react-quill';
+import RichTextEditor from './RichTextEditor';
+import { EditorTextChangeEvent } from 'primereact/editor';
 import { db } from '@/firebase/firebaseClient';
-import { useRouter } from 'next/navigation'; // Import the useRouter hook
 
 interface CreateArticleProps {
   title: string;
@@ -34,11 +30,13 @@ interface CreateArticleProps {
 }
 
 const CreateArticle: React.FC<CreateArticleProps> = ({ title, imageFiles }) => {
-  const router = useRouter(); // Initialize the router
+  const router = useRouter();
   const { user } = useAuth();
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(''); // Ensure state is always a string
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const setErrorString = (error: string | null) => setError(error ?? ''); // Convert 'null' to an empty string
 
   const uploadImages = async (files: File[]): Promise<UploadedImage[]> => {
     const storage = getStorage();
@@ -57,7 +55,7 @@ const CreateArticle: React.FC<CreateArticleProps> = ({ title, imageFiles }) => {
           downloadURL,
         });
       } catch (e) {
-        setError(
+        setErrorString(
           e instanceof Error
             ? `Failed to upload image: ${e.message}`
             : 'Failed to upload image'
@@ -71,12 +69,12 @@ const CreateArticle: React.FC<CreateArticleProps> = ({ title, imageFiles }) => {
 
   const handleCreateArticle = async () => {
     if (!user) {
-      setError('You must be logged in to create an article.');
+      setErrorString('You must be logged in to create an article.');
       return;
     }
 
     if (title.trim() === '' || content.trim() === '') {
-      setError('Title and content cannot be empty.');
+      setErrorString('Title and content cannot be empty.');
       return;
     }
 
@@ -94,14 +92,13 @@ const CreateArticle: React.FC<CreateArticleProps> = ({ title, imageFiles }) => {
       comments: [],
     };
 
-    const docRef = await addDoc(collection(db, 'articles'), {
+    await addDoc(collection(db, 'articles'), {
       ...newArticle,
       createdAt: Timestamp.now(),
     });
 
-    const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, {
-      articles: arrayUnion(docRef.id),
+    await updateDoc(doc(db, 'users', user.uid), {
+      articles: arrayUnion(doc(db, 'articles', newArticle.title).id),
     });
 
     setIsUploading(false);
@@ -118,14 +115,14 @@ const CreateArticle: React.FC<CreateArticleProps> = ({ title, imageFiles }) => {
         </Typography>
       )}
       {isUploading && <LinearProgress sx={{ marginTop: 2 }} />}
-      {typeof window !== 'undefined' && (
-        <ReactQuill
-          value={content}
-          onChange={setContent}
-          theme="snow"
-          style={{ height: '200px' }}
-        />
-      )}
+      <RichTextEditor
+        value={content}
+        onTextChange={(e: EditorTextChangeEvent) =>
+          setContent(e.htmlValue ?? '')
+        }
+        style={{ height: '200px' }}
+      />
+
       <Button
         variant="contained"
         color="primary"

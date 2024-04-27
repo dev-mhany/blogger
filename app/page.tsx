@@ -1,3 +1,4 @@
+import RichTextEditor from '@/components/Article/RichTextEditor';
 import {
   Box,
   Typography,
