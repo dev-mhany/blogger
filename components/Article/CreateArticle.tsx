@@ -131,13 +131,13 @@ const CreateArticle: React.FC<CreateArticleProps> = ({
         </Typography>
       )}
       {isUploading && <LinearProgress sx={{ marginTop: 2 }} />}
-      <TextField
+      {/* <TextField
         label="Content"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         fullWidth
         margin="normal"
-      />
+      /> */}
       {typeof window !== 'undefined' && (
         <ReactQuill
           value={content}
