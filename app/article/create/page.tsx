@@ -1,39 +1,30 @@
-/* eslint-disable @next/next/no-img-element */
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import {
   TextField,
-  Button,
   Box,
   Typography,
-  LinearProgress,
   Grid,
   IconButton,
+  Button,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import ReactQuill from 'react-quill';
-import './quill.snow.css';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
-import useAuth from '../../../hooks/useAuth';
-import CreateArticle from '../../../components/Article/CreateArticle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import dynamic from 'next/dynamic';
+const CreateArticle = dynamic(
+  () => import('../../../components/Article/CreateArticle'),
+  { ssr: false }
+);
 
 const ArticleCreatePage = () => {
   const router = useRouter();
-  const { uploadArticle, isUploading, error, uploadImages } = CreateArticle();
-  const { user } = useAuth();
-
-  const storage = getStorage();
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [thumbnailURLs, setThumbnailURLs] = useState<string[]>([]);
 
   useEffect(() => {
-    if (imageFiles.length > 0) {
+    if (typeof window !== 'undefined' && imageFiles.length > 0) {
       const newThumbnailURLs = imageFiles.map((file) =>
         URL.createObjectURL(file)
       );
@@ -48,44 +39,11 @@ const ArticleCreatePage = () => {
     }
   };
 
-  const handleCreateArticle = async () => {
-    if (!user) {
-      alert('You must be logged in to create an article.');
-      return;
-    }
-
-    if (title.trim() === '' || content.trim() === '') {
-      alert('Title and content cannot be empty.');
-      return;
-    }
-
-    const articleData = {
-      title,
-      content,
-      authorId: user.uid,
-      authorName: user.displayName ?? 'Anonymous',
-      likes: [],
-      comments: [],
-      images: [] as string[],
-    };
-
-    if (imageFiles.length > 0) {
-      const imageUrls = await uploadImages(imageFiles);
-      // articleData.images = imageUrls;
-    }
-
-    await uploadArticle(articleData, imageFiles);
-
-    if (!error) {
-      router.push('/article');
-    }
+  const handleArticleCreated = (articleId: any) => {
+    router.push(`/article/${articleId}`);
   };
 
   const removeImage = (index: number) => {
-    if (index < 0 || index >= imageFiles.length) {
-      return;
-    }
-
     const newImageFiles = [...imageFiles];
     newImageFiles.splice(index, 1);
     setImageFiles(newImageFiles);
@@ -97,12 +55,6 @@ const ArticleCreatePage = () => {
       <Typography variant="h4" textAlign="center" gutterBottom>
         Create an Article
       </Typography>
-      {error && (
-        <Typography color="error" textAlign="center">
-          {error}
-        </Typography>
-      )}
-      {isUploading && <LinearProgress sx={{ marginTop: 2 }} />}
       <TextField
         label="Title"
         value={title}
@@ -110,18 +62,6 @@ const ArticleCreatePage = () => {
         fullWidth
         margin="normal"
       />
-      <Typography variant="h6" sx={{ mt: 2 }} gutterBottom>
-        Content
-      </Typography>
-      <ReactQuill
-        value={content}
-        onChange={(value) => setContent(value)}
-        theme="snow"
-        style={{ height: '200px' }}
-      />
-      <Typography variant="h6" sx={{ mt: 2 }} gutterBottom>
-        Upload Images
-      </Typography>
       <Button variant="contained" component="label">
         Upload Images
         <input
@@ -136,6 +76,7 @@ const ArticleCreatePage = () => {
         {thumbnailURLs.map((url, index) => (
           <Grid item key={index}>
             <Box sx={{ position: 'relative', width: 100, height: 100 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
                 alt={`Thumbnail ${index}`}
@@ -153,15 +94,11 @@ const ArticleCreatePage = () => {
           </Grid>
         ))}
       </Grid>
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={handleCreateArticle}
-        disabled={isUploading}
-      >
-        Create Article
-      </Button>
+      <CreateArticle
+        title={title}
+        imageFiles={imageFiles}
+        onArticleCreated={handleArticleCreated}
+      />
     </Box>
   );
 };
